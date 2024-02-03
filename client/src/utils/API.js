@@ -1,61 +1,57 @@
-import { useMutation, useQuery } from '@apollo/client';
-import { GET_ME } from './queries'; // Define your GraphQL queries
-
-// Get logged-in user's info
-export const getMe = () => {
-  return useQuery(GET_ME);
+// route to get logged in user's info (needs the token)
+export const getMe = (token) => {
+  return fetch('/api/users/me', {
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: `Bearer ${token}`,
+    },
+  });
 };
 
-// Create user
 export const createUser = (userData) => {
-  // Use useMutation hook to execute the addUser mutation
-  const [addUser] = useMutation(ADD_USER); // Define your GraphQL mutation for adding a user
-
-  // Call the mutation with userData
-  return addUser({
-    variables: userData,
+  return fetch('/api/users', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData),
   });
 };
 
-// Login user
 export const loginUser = (userData) => {
-  // Use useMutation hook to execute the loginUser mutation
-  const [loginUser] = useMutation(LOGIN_USER); // Define your GraphQL mutation for login
-
-  // Call the mutation with userData
-  return loginUser({
-    variables: userData,
+  return fetch('/api/users/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData),
   });
 };
 
-// Save book for a logged-in user
-export const saveBook = (bookData) => {
-  // Use useMutation hook to execute the saveBook mutation
-  const [saveBook] = useMutation(SAVE_BOOK); // Define your GraphQL mutation for saving a book
-
-  // Call the mutation with bookData
-  return saveBook({
-    variables: bookData,
+// save book data for a logged in user
+export const saveBook = (bookData, token) => {
+  return fetch('/api/users', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(bookData),
   });
 };
 
-// Remove saved book for a logged-in user
-export const deleteBook = (bookId) => {
-  // Use useMutation hook to execute the removeBook mutation
-  const [removeBook] = useMutation(REMOVE_BOOK); // Define your GraphQL mutation for removing a book
-
-  // Call the mutation with bookId
-  return removeBook({
-    variables: { bookId },
+// remove saved book data for a logged in user
+export const deleteBook = (bookId, token) => {
+  return fetch(`/api/users/books/${bookId}`, {
+    method: 'DELETE',
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
   });
 };
 
-// Make a search to Google Books API
+// make a search to google books api
+// https://www.googleapis.com/books/v1/volumes?q=harry+potter
 export const searchGoogleBooks = (query) => {
-  // Use useQuery hook to execute the searchBooks query
-  const { loading, error, data } = useQuery(SEARCH_BOOKS, {
-    variables: { query },
-  });
-
-  return { loading, error, data };
+  return fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}`);
 };
